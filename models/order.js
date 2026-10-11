@@ -17,6 +17,11 @@ const orderScema = new mongoose.Schema({
             quantity: {
                 type: Number,
                 required: true
+            },
+            price: { 
+                type: Number, 
+                required: true, 
+                min: 0
             }
         }
     ],
@@ -28,13 +33,9 @@ const orderScema = new mongoose.Schema({
 
     status: {
         type: String,
+        enum: ["pending", "confirmed"],
         default: "pending"
-    },
-
-    orderDate: {
-        type: Date,
-        default: Date.now
     }
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model("Order", orderScema)

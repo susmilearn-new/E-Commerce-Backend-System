@@ -45,6 +45,7 @@ const createOrder = async (req, res) => {
 const getOrder = async (req, res) => {
     try {
         const orders = await Order.find({ user: req.user.id })
+
         res.status(200).json({
             data: orders
         })
@@ -58,6 +59,7 @@ const getOrder = async (req, res) => {
 const getAllOrder = async (req, res) => {
     try {
         const orders = await Order.find()
+
         res.status(200).json({
             data: orders
         })

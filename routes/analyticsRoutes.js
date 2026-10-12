@@ -1,6 +1,10 @@
-const express = require('express')
-const analyticsRoutes = express.Router()
+const express = require("express");
 
-analyticsRoutes.get("/", getAnalytics)
+const { validateToken } = require("../middleware/authMiddleware");
+const { getRecommendations } = require("../controllers/analyticsController");
 
-module.exports = analyticsRoutes
+const analyticsRoutes = express.Router();
+
+analyticsRoutes.get("/recommendations", validateToken, getRecommendations)
+
+module.exports = analyticsRoutes;

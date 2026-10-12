@@ -2,11 +2,11 @@ const Product = require("../models/product")
 
 
 //create product
-const createProduct = async(req, res)=>{
+const createProduct = async (req, res) => {
     try {
         const {
-            name, description, price, category, stock} = req.body
-            const image = req.file ? req.file.filename : undefined;
+            name, description, price, category, stock } = req.body
+        const image = req.file ? req.file.filename : undefined;
 
         if (
             !name?.trim() ||
@@ -36,7 +36,7 @@ const createProduct = async(req, res)=>{
             message: "Product created successfully",
             data: newProduct
         })
-        
+
     } catch (error) {
         res.status(400).json({ message: error.message })
     }
@@ -45,12 +45,50 @@ const createProduct = async(req, res)=>{
 const listProducts = async (req, res) => {
 
     try {
-        const product = await Product.find()
+        const { search, category, minPrice, maxPrice, sortBy, order } = req.query
+        // Build filter 
+        let filter = {};
 
+        // Search by product name or category 
+        if (search) {
+            filter.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { category: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        // Filter by category
+        if (category) {
+            filter.category = {
+                $regex: `^${category}$`, $options: "i"
+            };
+        }
+
+        // Filter by minimum price 
+        if (minPrice !== undefined) {
+            if (minPrice === "" || !Number.isFinite(Number(minPrice))) {
+                return res.status(400).json({
+                    message: "Invalid minimum price"
+                });
+            }
+            filter.price = {
+                ...filter.price, $gte: Number(minPrice)
+
+            };
+        }
+
+        // Choose sorting field
+        const sortField =
+            ["price", "name", "createdAt"].includes(sortBy) ? sortBy : "createdAt";
+        const sortOrder = order === "asc" ? 1 : -1
+
+        // Get products 
+        const products = await Product.find(filter).sort({ [sortField]: sortOrder })
         return res.status(200).json({
             success: true,
-            data: product
-        })
+            count: products.length,
+            data: products
+        });
 
     } catch (error) {
         return res.status(500).json({ message: error.message })
@@ -85,7 +123,7 @@ const updateProductById = async (req, res) => {
     try {
 
         const { name, description, price, category, stock } = req.body
-        const image = req.file? req.file.filename : undefined;
+        const image = req.file ? req.file.filename : undefined;
 
         const updatedProduct = await Product.findByIdAndUpdate(req.params.id,
             { name, description, price, category, stock },

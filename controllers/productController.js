@@ -45,7 +45,7 @@ const createProduct = async (req, res) => {
 const listProducts = async (req, res) => {
 
     try {
-        const { search, category, minPrice, maxPrice, sortBy, order } = req.query
+        const { search, category, minPrice, sortBy, order } = req.query
         // Build filter 
         let filter = {};
 
